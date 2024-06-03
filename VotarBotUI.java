@@ -164,13 +164,13 @@ class IngresarCandidatoUI extends JFrame {
     private static final int MAX_CANDIDATOS = 3;
 
     public IngresarCandidatoUI() {
-        
+        // Configuración de la ventana de ingreso de candidatos
         setTitle("Ingresar Candidato");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(300, 200); 
-        setLocationRelativeTo(null); 
+        setSize(300, 200); // Establecer el tamaño de la ventana
+        setLocationRelativeTo(null); // Centrar la ventana en la pantalla
 
-        
+        // Configuración de los campos de texto y etiquetas
         JLabel nombreLabel = new JLabel("Nombre:");
         JTextField nombreField = new JTextField(20);
         JLabel edadLabel = new JLabel("Edad:");
@@ -178,34 +178,47 @@ class IngresarCandidatoUI extends JFrame {
         JLabel partidoLabel = new JLabel("Partido Político:");
         JTextField partidoField = new JTextField(20);
 
+        // Configuración del botón Guardar
         JButton guardarButton = new JButton("Guardar");
         guardarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String nombre = nombreField.getText();
-                String edadText = edadField.getText();
-                String partido = partidoField.getText();
+                String nombre = nombreField.getText().trim();
+                String edadText = edadField.getText().trim();
+                String partido = partidoField.getText().trim();
 
-                if (nombre.isEmpty() || edadText.isEmpty() || partido.isEmpty()) {
-                    JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "Todos los campos son obligatorios.");
+                // Validar nombre (solo letras y espacios)
+                if (!nombre.matches("^[a-zA-Z\\s]+$")) {
+                    JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "El nombre solo debe contener letras y espacios.");
                     return;
                 }
 
+                // Validar edad (número positivo entre 18 y 100)
                 int edad;
                 try {
                     edad = Integer.parseInt(edadText);
+                    if (edad < 18 || edad > 100) {
+                        JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "La edad debe estar entre 18 y 100 años.");
+                        return;
+                    }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "La edad debe ser un número.");
                     return;
                 }
 
-                
+                // Validar partido político (solo letras, espacios y algunos caracteres especiales)
+                if (!partido.matches("^[a-zA-Z\\s\\-_,.&]+$")) {
+                    JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "El partido político solo debe contener letras, espacios y algunos caracteres especiales (-, _, ., ,, &).");
+                    return;
+                }
+
+                // Aquí puedes agregar la lógica para guardar el candidato
                 if (VotarBotUI.getCandidatos().size() >= MAX_CANDIDATOS) {
                     JOptionPane.showMessageDialog(IngresarCandidatoUI.this, "Se han ingresado los 3 candidatos.");
                     dispose();
                 } else {
                     VotarBotUI.agregarCandidato(new Candidato(nombre, edad, partido));
-                   
+                    // Limpiar campos
                     nombreField.setText("");
                     edadField.setText("");
                     partidoField.setText("");
@@ -214,19 +227,19 @@ class IngresarCandidatoUI extends JFrame {
             }
         });
 
-        
+        // Configuración del panel para los campos de texto y el botón
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2)); 
+        panel.setLayout(new GridLayout(4, 2)); // Organizar los componentes en una cuadrícula de 4 filas y 2 columnas
         panel.add(nombreLabel);
         panel.add(nombreField);
         panel.add(edadLabel);
         panel.add(edadField);
         panel.add(partidoLabel);
         panel.add(partidoField);
-        panel.add(new JLabel());
+        panel.add(new JLabel()); // Espacio vacío
         panel.add(guardarButton);
 
-        
+        // Agregar el panel al contenido de la ventana
         getContentPane().add(panel);
     }
 }
@@ -262,26 +275,39 @@ class VotanteUI extends JFrame {
         
         JButton guardarButton = new JButton("Guardar");
         guardarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String genero = (String) generoComboBox.getSelectedItem();
-                String edadText = edadField.getText();
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String nombre = nombreField.getText().trim();
+        String genero = (String) generoComboBox.getSelectedItem();
+        String edadText = edadField.getText().trim();
 
-                if (genero == null || edadText.isEmpty()) {
-                    JOptionPane.showMessageDialog(VotanteUI.this, "Todos los campos son obligatorios.");
-                    return;
-                }
+        // Validar nombre (solo letras y espacios)
+        if (!nombre.matches("^[a-zA-Z\\s]+$")) {
+            JOptionPane.showMessageDialog(VotanteUI.this, "El nombre solo debe contener letras y espacios.");
+            return;
+        }
 
-                int edad;
-                try {
-                    edad = Integer.parseInt(edadText);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(VotanteUI.this, "La edad debe ser un número.");
-                    return;
-                }
+        // Validar género
+        if (genero == null) {
+            JOptionPane.showMessageDialog(VotanteUI.this, "Por favor, seleccione un género.");
+            return;
+        }
 
-                votanteData.genero = genero;
-                votanteData.edad = edad;
+        // Validar edad (número positivo entre 18 y 100)
+        int edad;
+        try {
+            edad = Integer.parseInt(edadText);
+            if (edad < 18 || edad > 100) {
+                JOptionPane.showMessageDialog(VotanteUI.this, "La edad debe estar entre 18 y 100 años.");
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(VotanteUI.this, "La edad debe ser un número.");
+            return;
+        }
+
+        votanteData.genero = genero;
+        votanteData.edad = edad;
 
                 EstadisticasVotantesUI.agregarVotante(new Votante(genero, edad));
                 
